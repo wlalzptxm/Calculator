@@ -6,22 +6,15 @@
 //  Copyright © 2018 Seunghoon Jeon. All rights reserved.
 //
 
-//UIKitにはButton、TextFieldのような基本的なすべてのUIが入っている
 import UIKit
 
 class ViewController: UIViewController {
     
-    //optionalはnotsetの状態でいつも初期化される
     @IBOutlet weak var display: UILabel!
     
-    // 一般propertyは、初期化が必要してswiftはタイプを推論するために:Boolは省略可能である
     var userIsInTheMiddleOfTyping = false
     
-    //アンダーバーを使用してexternal名前を省略することができる
     @IBAction func touchDigit(_ sender: UIButton) {
-        //letを使用するとき二つの理由がある。
-        //1. コードを読む人たちに絶対に変わるはずないと明示してくれる
-        //2. ArrayやDictionaryにletを使用するなら、どの値も追加で入ったり、取り出したりすることができないということを意味する(読みだけに可能なものとつくる方法の一つ)
         let digit = sender.currentTitle!
         if userIsInTheMiddleOfTyping {
             let textCurrnetlyInDisplay = display.text!
@@ -32,14 +25,35 @@ class ViewController: UIViewController {
         userIsInTheMiddleOfTyping = true
     }
     
+    //計算 プロパティ
+    var displayValue: Double {
+        //getはdisplayValueに含まれている値を呼び出すために設定
+        get {
+            //呼び出される時Doubleに返還しなければならないから、再びcasting、また、タイプ変換ができない可能性もあることによりoptionalタイプで、再び全体をunwrappingしなければならない
+            //つまり、displayValueに入ってくるString値をDoubleに返すための計算プロパティ
+            return Double(display.text!)!
+        }
+        //setは誰かがこの変数の値を設定しようとする時に実行されるコードになる
+        set {
+            //displayValueに使われる新しいDouble値をStringに設定するための計算プロパティ
+            //もっと易しく言えば、Double-(使おうとする値)-Stringに自動に変換してくれる計算プロパティ
+            display.text = String(newValue)
+        }
+        
+    }
+    
     @IBAction func performOpertation(_ sender: UIButton) {
         userIsInTheMiddleOfTyping = false
         if let mathematicalSymbol = sender.currentTitle {
             if mathematicalSymbol == "π" {
-                //displayはdoubleタイプが受けられないため、Stringでcasting
-                display.text = String(Double.pi)
+                //この場合、displayに使われるようになるDoubleタイプのπ値が自動にStringとtypecastingなる
+                displayValue = Double.pi
+            } else if mathematicalSymbol == "√" {
+                displayValue = sqrt(displayValue)
             }
         }
     }
+    
+    
 }
 
