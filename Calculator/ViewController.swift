@@ -10,11 +10,11 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet weak var display: UILabel!
+    @IBOutlet private weak var display: UILabel!
     
-    var userIsInTheMiddleOfTyping = false
+    private var userIsInTheMiddleOfTyping = false
     
-    @IBAction func touchDigit(_ sender: UIButton) {
+    @IBAction private func touchDigit(_ sender: UIButton) {
         let digit = sender.currentTitle!
         if userIsInTheMiddleOfTyping {
             let textCurrnetlyInDisplay = display.text!
@@ -26,7 +26,7 @@ class ViewController: UIViewController {
     }
     
     //計算 プロパティ
-    var displayValue: Double {
+    private var displayValue: Double {
         //getはdisplayValueに含まれている値を呼び出すために設定
         get {
             //呼び出される時Doubleに返還しなければならないから、再びcasting、また、タイプ変換ができない可能性もあることによりoptionalタイプで、再び全体をunwrappingしなければならない
@@ -42,18 +42,21 @@ class ViewController: UIViewController {
         
     }
     
-    @IBAction func performOpertation(_ sender: UIButton) {
-        userIsInTheMiddleOfTyping = false
-        if let mathematicalSymbol = sender.currentTitle {
-            if mathematicalSymbol == "π" {
-                //この場合、displayに使われるようになるDoubleタイプのπ値が自動にStringとtypecastingなる
-                displayValue = Double.pi
-            } else if mathematicalSymbol == "√" {
-                displayValue = sqrt(displayValue)
-            }
+    //ModelのCalulatorBrainのControllerとして活用される変数
+    private var brain = CalculatorBrain()
+    
+    @IBAction private func performOpertation(_ sender: UIButton) {
+        //もし、使用者が数字を入力しているなら、その数字を計算機のoperandでsetしてくれる、例えば、235かいて、ルート'√'をするなら、235をoperandの中に入れておくようになる。
+        if userIsInTheMiddleOfTyping {
+            brain.setOperand(operand: displayValue)
+            userIsInTheMiddleOfTyping = false
         }
+        //senderを通じて数字が入ってくると、mathematicalSymbolを通じて演算をして
+        if let mathematicalSymbol = sender.currentTitle {
+            brain.performOperation(symbol : mathematicalSymbol)
+        }
+        //演算が終わったらdisplayValueにここにいるresultの結果の値を入れることになる
+        displayValue = brain.result
     }
-    
-    
 }
 
