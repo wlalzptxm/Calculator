@@ -12,9 +12,11 @@ import Foundation
 class CalculatorBrain
 {
     private var accumulator = 0.0
+    private var internalProgram = [AnyObject]()
     
     func setOperand(operand: Double) {
         accumulator = operand
+        internalProgram.append(operand as AnyObject)
     }
     
     //Dictionaryで何らかの種類のボタンが来てもどんな種類の演算かだけを定義することができたら
@@ -57,6 +59,7 @@ class CalculatorBrain
     //もうenumとDictionaryにタイプが指定されたため、()中に変数を入れ、関連値を除いて来られることができる
     
     func performOperation(symbol: String) {
+        internalProgram.append(symbol as AnyObject)
         if let operation = operations[symbol] {
             switch operation {
             case .Constant(let value) :
@@ -92,6 +95,34 @@ class CalculatorBrain
     private struct PendingBinaryOperationInfo {
         var binaryFunction: (Double, Double) -> Double
         var firstOperand: Double
+    }
+    
+    //typealiasはタイプを作ることができるように手伝ってくれる
+    typealias PropertyList = AnyObject
+    
+    //作られたPropertyListタイプを演算プロパティで作って活用する
+    var program: PropertyList {
+        get {
+            return internalProgram as CalculatorBrain.PropertyList
+        }
+        set {
+            clear()
+            if let arrayOfOps = newValue as? [AnyObject] {
+                for op in arrayOfOps {
+                    if let operand = op as? Double {
+                        setOperand(operand: operand)
+                    }else if let operation = op as? String {
+                        performOperation(symbol: operation)
+                    }
+                }
+            }
+        }
+    }
+    
+    func clear() {
+        accumulator = 0.0
+        pending = nil
+        internalProgram.removeAll()
     }
     
     var result: Double {

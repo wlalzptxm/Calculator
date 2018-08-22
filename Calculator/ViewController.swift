@@ -42,6 +42,21 @@ class ViewController: UIViewController {
         
     }
     
+    //保存と呼ぶことを作る
+    var savedProgram: CalculatorBrain.PropertyList?
+    
+    @IBAction func save() {
+        savedProgram = brain.program
+    }
+    
+    @IBAction func restore() {
+        if savedProgram != nil {
+            brain.program = savedProgram!
+            displayValue = brain.result
+        }
+    }
+    
+    
     //ModelのCalulatorBrainのControllerとして活用される変数
     private var brain = CalculatorBrain()
     
